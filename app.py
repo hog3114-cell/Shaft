@@ -38,6 +38,7 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
     box-shadow:0 6px 18px rgba(11,27,51,0.28);
 }
 .bm-header *, .bm-header { color:#FFFFFF !important; }
+.bm-header .bm-title { color:#FFFFFF !important; font-weight:900; font-size:19px; letter-spacing:-0.5px; }
 .bm-logo { font-size:22px; }
 .bm-title { font-weight:900; font-size:19px; letter-spacing:-0.5px; }
 .bm-round { background:#F5C451; color:#0B1B33 !important; font-size:12px;
@@ -74,31 +75,33 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
 .bm-badge-ev { background:#E8EAF6; color:#3F51B5 !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
 
 /* ── ⭐ betman식 선택 버튼 (누르면 네이비로 칠해짐) ── */
-div.row-widget.stRadio > div { flex-direction:row; gap:10px; padding-bottom:10px; flex-wrap:wrap; }
-div.row-widget.stRadio label {
+/* ── ⭐ 큼직한 네모 선택 버튼 ── */
+div[role="radiogroup"] { flex-direction:row !important; gap:10px !important; flex-wrap:wrap !important; padding-bottom:10px; }
+div[role="radiogroup"] > label {
     background:#F4F6F9 !important;
     border:2px solid #E0E5EC !important;
     border-radius:12px !important;
-    padding:16px 6px !important;
-    flex:1 1 70px; min-width:70px;
-    display:flex !important; align-items:center; justify-content:center;
-    transition:all .15s ease;
-    cursor:pointer;
+    padding:16px 8px !important;
+    margin:0 !important;
+    flex:1 1 70px !important; min-width:70px !important;
+    display:flex !important; align-items:center !important; justify-content:center !important;
+    cursor:pointer; transition:all .15s ease;
 }
-div.row-widget.stRadio label p {
-    color:#5A6678 !important; font-weight:800 !important; font-size:16px;
+/* 동그란 라디오 동그라미 숨기기 (첫 번째 자식 = 라디오 표시) */
+div[role="radiogroup"] > label > div:first-child { display:none !important; }
+/* 글자 키우고 가운데 */
+div[role="radiogroup"] > label > div:last-child,
+div[role="radiogroup"] > label p {
+    color:#5A6678 !important; font-weight:800 !important; font-size:16px !important;
+    text-align:center !important; width:100%;
 }
-/* 동그란 라디오 점 완전 제거 */
-div.row-widget.stRadio label > div:first-child,
-div.row-widget.stRadio label [data-testid="stMarkdownContainer"] + div,
-div.row-widget.stRadio input { display:none !important; width:0 !important; }
-/* 선택된 버튼: 네이비 채움 + 흰 글씨 */
-div.row-widget.stRadio label:has(input:checked) {
-    background:#13284A !important;
-    border-color:#13284A !important;
+/* 선택된 버튼: 네이비 채움 (aria-checked 사용 → :has 미지원 환경 대비) */
+div[role="radiogroup"] > label:has(input:checked),
+div[role="radiogroup"] > label[data-checked="true"] {
+    background:#13284A !important; border-color:#13284A !important;
     box-shadow:0 4px 14px rgba(19,40,74,0.28);
 }
-div.row-widget.stRadio label:has(input:checked) p {
+div[role="radiogroup"] > label:has(input:checked) p {
     color:#FFFFFF !important;
 }
 
@@ -192,7 +195,7 @@ def save_pick(name, picks):
 # ------------------------------------------------------------
 # [3] 상단 헤더
 # ------------------------------------------------------------
-st.markdown('<div class="bm-header"><span class="bm-logo">🏆</span><span class="bm-title">기계의장부 스포츠 토토</span><span class="bm-round">1회차</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="bm-header"><span class="bm-logo">🏆</span><span class="bm-title" style="color:#FFFFFF !important;">기계의장부 스포츠 토토</span><span class="bm-round">1회차</span></div>', unsafe_allow_html=True)
 st.markdown('<div class="bm-subbar"><span>⚽ 이벤트 승부식</span><span class="bm-deadline">마감 6/25(목) 09:50</span></div>', unsafe_allow_html=True)
 
 tab_main, tab_my, tab_admin = st.tabs(["📝 마킹하기", "🧾 마이페이지", "👑 관리자"])
@@ -288,6 +291,16 @@ with tab_my:
 # ============================================================
 with tab_admin:
     st.markdown('<div class="center-title">👑 관리자 채점 룸</div>', unsafe_allow_html=True)
+
+    admin_pw = st.text_input("🔒 관리자 비밀번호", type="password",
+                             placeholder="비밀번호를 입력하세요", key="admin_pw_input")
+
+    if admin_pw != st.secrets.get("admin_pw", "1234"):
+        if admin_pw:
+            st.error("비밀번호가 틀렸습니다.")
+        else:
+            st.info("정답 입력과 채점은 관리자만 가능합니다. 비밀번호를 입력하세요.")
+        st.stop()  # 비번 통과 못 하면 여기서 멈춤 (아래 채점 화면 안 보임)
 
     df = load_data()
     st.markdown(f'<div class="center-sub">현재 참여자 <b>{len(df)}명</b> · 경기 종료 후 정답을 입력하세요</div>',

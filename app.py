@@ -78,11 +78,11 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
 
 /* ── ⭐ betman식 선택 버튼 (누르면 네이비로 칠해짐) ── */
 /* ── ⭐ 큼직한 네모 선택 버튼 (한 줄 균등 분배) ── */
-div[data-testid="stRadio"] { display:flex; justify-content:center; }
+div[data-testid="stRadio"] > div { width:100% !important; }
 div[role="radiogroup"] {
     display:flex !important; flex-direction:row !important;
-    gap:9px !important; flex-wrap:nowrap !important;
-    justify-content:center !important; align-items:stretch !important;
+    gap:10px !important; flex-wrap:nowrap !important;
+    justify-content:stretch !important; align-items:stretch !important;
     width:100% !important; padding:4px 0 16px !important;
 }
 div[role="radiogroup"] > label {
@@ -91,12 +91,16 @@ div[role="radiogroup"] > label {
     border-radius:13px !important;
     padding:16px 4px !important;
     margin:0 !important;
-    flex:1 1 0 !important; min-width:0 !important;
+    flex:1 1 0 !important; width:auto !important; min-width:0 !important;
     display:flex !important; align-items:center !important; justify-content:center !important;
     cursor:pointer; transition:all .15s ease;
 }
 div[role="radiogroup"] > label:hover { border-color:#B9C2D0 !important; }
-div[role="radiogroup"] > label > div:first-child { display:none !important; }
+/* 숨긴 동그라미가 자리 차지하던 문제 → 완전 제거 */
+div[role="radiogroup"] > label > div:first-child {
+    display:none !important; width:0 !important; height:0 !important;
+    margin:0 !important; padding:0 !important;
+}
 div[role="radiogroup"] > label > div:last-child,
 div[role="radiogroup"] > label p {
     color:#5A6678 !important; font-weight:800 !important; font-size:16px !important;
@@ -166,7 +170,7 @@ div[data-baseweb="select"] [data-baseweb="select"] > div:first-child { justify-c
 # ------------------------------------------------------------
 # [2] 마감 시간 & 구글 시트 연결
 # ------------------------------------------------------------
-DEADLINE = datetime.datetime(2026, 6, 25, 9, 50, 0)
+DEADLINE = datetime.datetime(2026, 6, 25, 10, 0, 0)
 now = datetime.datetime.now()
 is_locked = now > DEADLINE
 
@@ -215,13 +219,57 @@ def save_pick(name, picks):
     df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
     conn.update(worksheet="picks", data=df)
 
+def save_results(rank_df):
+    """채점 결과(순위)를 results 시트에 저장 → 순위발표 탭에서 사용"""
+    out = rank_df.copy()
+    out["발표시각"] = now.strftime("%Y-%m-%d %H:%M")
+    conn.update(worksheet="results", data=out)
+
+def load_results():
+    """저장된 순위 결과 불러오기 (없으면 None)"""
+    try:
+        df = conn.read(worksheet="results", ttl=0)
+        df = df.dropna(how="all")
+        return df if not df.empty else None
+    except Exception:
+        return None
+
+def render_rank_cards(rank_df, top_rank=None):
+    """순위 카드를 그림. 동점이면 같은 등수로 묶음.
+    top_rank 지정 시 그 등수까지만 표시 (예: 3 → 3위까지, 공동순위 인원 모두 포함)"""
+    medals = {1: "🥇", 2: "🥈", 3: "🥉"}
+    df = rank_df.sort_values("맞은 개수", ascending=False).reset_index(drop=True)
+
+    rank = 0          # 현재 등수
+    prev_score = None # 직전 점수
+    shown_count = 0   # 표시한 누적 인원
+
+    for i, r in df.iterrows():
+        score = int(r["맞은 개수"])
+        # 점수가 바뀌면 등수를 '지금까지 표시한 인원 + 1'로 갱신 (공동순위 반영)
+        if score != prev_score:
+            rank = shown_count + 1
+            prev_score = score
+        # top_rank 넘으면 중단
+        if top_rank and rank > top_rank:
+            break
+
+        medal = medals.get(rank, f"{rank}")
+        top = "top1" if rank == 1 else ""
+        st.markdown(f"""<div class="rank-card {top}">
+            <span class="rank-medal">{medal}</span>
+            <span class="rank-name">{r['이름']}</span>
+            <span class="rank-score">{score} / {TOTAL_Q}</span></div>""",
+            unsafe_allow_html=True)
+        shown_count += 1
+
 # ------------------------------------------------------------
 # [3] 상단 헤더
 # ------------------------------------------------------------
 st.markdown('<div class="bm-header"><span class="bm-round">1회차</span><div style="display:flex;align-items:center;gap:9px;"><span class="bm-logo">🏆</span><span class="bm-title" style="color:#FFFFFF !important;">기계의장부 스포츠 토토</span></div></div>', unsafe_allow_html=True)
-st.markdown('<div class="bm-subbar"><span>⚽ 이벤트 승부식</span><span class="bm-deadline">마감 6/25(목) 09:50</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="bm-subbar"><span>⚽ 이벤트 승부식</span><span class="bm-deadline">마감 6/25(목) 10:00</span></div>', unsafe_allow_html=True)
 
-tab_main, tab_my, tab_admin = st.tabs(["📝 마킹하기", "🧾 마이페이지", "👑 관리자"])
+tab_main, tab_my, tab_rank, tab_admin = st.tabs(["📝 마킹하기", "🧾 마이페이지", "🏆 순위발표", "👑 관리자"])
 
 # ============================================================
 # 탭 1: 마킹하기
@@ -313,7 +361,23 @@ with tab_my:
             st.error("등록된 내역이 없습니다. 이름을 확인하세요.")
 
 # ============================================================
-# 탭 3: 관리자 (정답 입력 → 자동 채점 → 순위)
+# 탭 3: 순위발표 (관리자 채점 결과를 5등까지 표시)
+# ============================================================
+with tab_rank:
+    st.markdown('<div class="center-title">🏆 최종 순위 발표</div>', unsafe_allow_html=True)
+    rank_df = load_results()
+    if rank_df is None:
+        st.markdown('<div class="center-sub">아직 순위가 발표되지 않았습니다.<br>경기 종료 후 관리자가 채점하면 여기에 표시됩니다.</div>',
+                    unsafe_allow_html=True)
+    else:
+        when = rank_df["발표시각"].iloc[0] if "발표시각" in rank_df.columns else ""
+        st.markdown(f'<div class="center-sub">🎉 TOP 3 · 발표 {when}</div>', unsafe_allow_html=True)
+        render_rank_cards(rank_df, top_rank=3)
+        st.markdown(f'<div class="center-sub" style="margin-top:14px;">총 {len(rank_df)}명 참여</div>',
+                    unsafe_allow_html=True)
+
+# ============================================================
+# 탭 4: 관리자 (정답 입력 → 자동 채점 → 순위)
 # ============================================================
 with tab_admin:
     st.markdown('<div class="center-title">👑 관리자 채점 룸</div>', unsafe_allow_html=True)
@@ -353,15 +417,13 @@ with tab_admin:
             rank_df = pd.DataFrame(results).sort_values(
                 "맞은 개수", ascending=False).reset_index(drop=True)
 
-            st.balloons()
-            st.markdown('<div class="center-title">🏅 최종 순위</div>', unsafe_allow_html=True)
+            # 결과를 시트에 저장 → 순위발표 탭에서 누구나 확인 가능
+            try:
+                save_results(rank_df)
+            except Exception as e:
+                st.warning(f"순위 저장 실패(화면 발표는 정상): {e}")
 
-            medals = ["🥇", "🥈", "🥉"]
-            for i, r in rank_df.iterrows():
-                medal = medals[i] if i < 3 else f"{i+1}"
-                top = "top1" if i == 0 else ""
-                st.markdown(f"""<div class="rank-card {top}">
-                    <span class="rank-medal">{medal}</span>
-                    <span class="rank-name">{r['이름']}</span>
-                    <span class="rank-score">{r['맞은 개수']} / {TOTAL_Q}</span></div>""",
-                    unsafe_allow_html=True)
+            st.balloons()
+            st.success("채점 완료! '🏆 순위발표' 탭에서도 확인할 수 있습니다.")
+            st.markdown('<div class="center-title">🏅 전체 순위</div>', unsafe_allow_html=True)
+            render_rank_cards(rank_df)

@@ -66,7 +66,11 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
 .bm-no { color:#13284A !important; font-weight:800; background:#EEF1F6;
     padding:3px 10px; border-radius:20px; font-size:10.5px; letter-spacing:0.5px; }
 .bm-team { font-size:17px; font-weight:800; text-align:center;
-    color:#0B1B33 !important; line-height:1.4; padding:2px 0; }
+    color:#0B1B33 !important; line-height:1.5; padding:2px 0;
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:6px; }
+.bm-team .flag { width:24px; height:auto; border-radius:3px; vertical-align:middle;
+    box-shadow:0 1px 2px rgba(0,0,0,0.15); }
+.bm-team .vs { color:#AEB6C2 !important; font-weight:700; font-size:14px; margin:0 2px; }
 .bm-sub { text-align:center; padding-top:9px; }
 .bm-badge-uo { background:#EAF0F8; color:#1B3A6B !important; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:800; }
 .bm-badge-h  { background:#FCEEDB; color:#C9700A !important; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:800; }
@@ -74,13 +78,18 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
 
 /* ── ⭐ betman식 선택 버튼 (누르면 네이비로 칠해짐) ── */
 /* ── ⭐ 큼직한 네모 선택 버튼 (한 줄 균등 분배) ── */
-div[role="radiogroup"] { flex-direction:row !important; gap:9px !important; flex-wrap:nowrap !important;
-    justify-content:center !important; padding:4px 0 14px !important; }
+div[data-testid="stRadio"] { display:flex; justify-content:center; }
+div[role="radiogroup"] {
+    display:flex !important; flex-direction:row !important;
+    gap:9px !important; flex-wrap:nowrap !important;
+    justify-content:center !important; align-items:stretch !important;
+    width:100% !important; padding:4px 0 16px !important;
+}
 div[role="radiogroup"] > label {
     background:#F5F7FA !important;
     border:2px solid #E6E9EF !important;
     border-radius:13px !important;
-    padding:15px 4px !important;
+    padding:16px 4px !important;
     margin:0 !important;
     flex:1 1 0 !important; min-width:0 !important;
     display:flex !important; align-items:center !important; justify-content:center !important;
@@ -90,8 +99,8 @@ div[role="radiogroup"] > label:hover { border-color:#B9C2D0 !important; }
 div[role="radiogroup"] > label > div:first-child { display:none !important; }
 div[role="radiogroup"] > label > div:last-child,
 div[role="radiogroup"] > label p {
-    color:#5A6678 !important; font-weight:800 !important; font-size:15.5px !important;
-    text-align:center !important; width:100%; white-space:nowrap;
+    color:#5A6678 !important; font-weight:800 !important; font-size:16px !important;
+    text-align:center !important; width:100%; white-space:nowrap; margin:0 !important;
 }
 div[role="radiogroup"] > label:has(input:checked) {
     background:#13284A !important; border-color:#13284A !important;
@@ -138,9 +147,19 @@ button[data-baseweb="tab"] { font-weight:800 !important; font-size:15px !importa
 /* selectbox 박스 스타일 (스코어 드롭다운) */
 div[data-baseweb="select"] > div {
     border:2px solid #E6E9EF !important; border-radius:13px !important;
-    background:#F5F7FA !important; min-height:50px; font-weight:800 !important;
+    background:#F5F7FA !important; min-height:52px; font-weight:800 !important;
 }
-div[data-baseweb="select"] div { color:#0B1B33 !important; }
+div[data-baseweb="select"] div { color:#0B1B33 !important; text-align:center; justify-content:center; }
+div[data-baseweb="select"] [data-baseweb="select"] > div:first-child { justify-content:center; }
+
+/* 안내 박스 (커스텀) */
+.notice-box {
+    background:#EAF0F8; border:1px solid #D6E2F2; border-radius:13px;
+    padding:14px 16px; margin-bottom:18px; text-align:center;
+    font-size:14px; font-weight:600; color:#1B3A6B !important;
+}
+.notice-box b { color:#0B1B33 !important; font-weight:800; }
+.notice-icon { margin-right:5px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -154,14 +173,14 @@ is_locked = now > DEADLINE
 # 구글 시트 연결 (secrets.toml 필요 - 아래 설명 참고)
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# 경기 팀 정보 (여기만 바꾸면 전체 반영)
-TEAM_HOME = "🇰🇷 대한민국"
-TEAM_AWAY = "남아프리카공화국 🇿🇦"
-MATCH = f"{TEAM_HOME} vs {TEAM_AWAY}"
+# 경기 팀 정보 (국기는 실제 이미지 → 삼성/윈도우/웹 모두 동일하게 표시)
+FLAG_KR = '<img src="https://flagcdn.com/w40/kr.png" class="flag">'
+FLAG_ZA = '<img src="https://flagcdn.com/w40/za.png" class="flag">'
+MATCH = f'{FLAG_KR} 대한민국 <span class="vs">vs</span> 남아프리카공화국 {FLAG_ZA}'
 
-# 최종 스코어 선택지 (몇 대 몇 맞히기)
+# 최종 스코어 선택지 ("기타" 제거)
 SCORE_OPTIONS = ["0:0", "1:0", "2:0", "2:1", "3:0", "3:1",
-                 "0:1", "0:2", "1:2", "0:3", "1:3", "기타"]
+                 "0:1", "0:2", "1:2", "0:3", "1:3"]
 
 QUESTION_MAP = {
     "q1": "1. 최종 승무패", "q3": "2. 언더오버(2.0)",
@@ -211,7 +230,10 @@ with tab_main:
     if is_locked:
         st.error("🚨 제출이 마감되었습니다. (결과 발표 대기 중)")
     else:
-        st.info("마감 전까지 무제한 수정 가능 · 이름 동일하게 재제출")
+        st.markdown("""<div class="notice-box">
+            <span class="notice-icon">⏱</span>
+            마감 전까지 <b>무제한 수정</b> 가능 · 같은 이름으로 재제출
+            </div>""", unsafe_allow_html=True)
         user_name = st.text_input("참여자 이름", placeholder="이름을 입력하면 마킹지가 열립니다")
 
         if user_name:

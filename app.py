@@ -20,7 +20,7 @@ st.markdown("""
 /* ── 기본 토대 ── */
 .stApp { background:#F0F2F5 !important; }
 .stApp, .stApp * { font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; }
-.block-container { padding-top:3rem !important; padding-bottom:2rem; max-width:460px; }
+.block-container { padding-top:2rem !important; padding-bottom:2rem; max-width:460px; }
 header[data-testid="stHeader"] { background:transparent !important; height:0; }
 
 /* 기본 글자 또렷하게 강제 */
@@ -150,6 +150,15 @@ div[data-baseweb="select"] [data-baseweb="select"] > div:first-child { justify-c
 }
 .notice-box b { color:#0B1B33 !important; font-weight:800; }
 .notice-icon { margin-right:5px; }
+/* 상단 우측 툴바(Fork·GitHub·메뉴) 숨기기 */
+[data-testid="stToolbar"] { display:none !important; }
+[data-testid="stToolbarActions"] { display:none !important; }
+header[data-testid="stHeader"] { display:none !important; }
+/* 하단 'Hosted with Streamlit' 배지 숨기기 */
+[data-testid="stBottom"] { display:none !important; }
+footer { display:none !important; }
+.viewerBadge_container__1QSob, [class*="viewerBadge"] { display:none !important; }
+a[href*="streamlit.io"] { display:none !important; }
 </style>
 """, unsafe_allow_html=True)
 

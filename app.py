@@ -177,7 +177,7 @@ SCORE_OPTIONS = ["0:0", "1:0", "2:0", "2:1", "3:0", "3:1",
                  "0:1", "0:2", "1:2", "0:3", "1:3"]
 
 QUESTION_MAP = {
-    "q1": "1. 최종 승무패", "q3": "2. 언더오버(2.0)",
+    "q1": "1. 최종 승무패", "q3": "2. 언더오버(2.5)",
     "q4": "3. 첫 골 득점 국가", "q5": "4. 전반전 결과", "q6": "5. 대한민국 총 득점",
     "q7": "6. 양 팀 모두 득점", "q8": "7. 첫 옐로카드", "q9": "8. PK 발생", "q10": "9. 최종 스코어"
 }
@@ -297,7 +297,7 @@ with tab_main:
             # 승부식 2종 (승무패 / 언더오버)
             fixed = [
                 (1, MATCH, "<span class='bm-badge-uo'>승무패</span>", ["승", "무", "패"], "q1"),
-                (2, MATCH, "<span class='bm-badge-h'>언더오버 2.0</span>", ["언더", "오버"], "q3"),
+                (2, MATCH, "<span class='bm-badge-h'>언더오버 2.5</span>", ["언더", "오버"], "q3"),
             ]
             for num, team, badge, opts, key in fixed:
                 st.markdown(f"""<div class="bm-card"><div class="bm-card-head">

@@ -11,55 +11,104 @@ from streamlit_gsheets import GSheetsConnection
 st.set_page_config(layout="centered", page_title="기계의장부 스포츠 토토", page_icon="⚽")
 
 # ------------------------------------------------------------
-# [1] betman 스타일 CSS (라이트 테마 전제 → 색상 충돌 없음)
+# [1] 토토 스타일 CSS (betman식 선택 버튼 + 모던 색감)
 # ------------------------------------------------------------
 st.markdown("""
 <style>
-/* 전체 배경: betman 옅은 회색 */
-.stApp { background-color: #EFF1F4; }
-.block-container { padding-top: 1rem; padding-bottom: 2rem; max-width: 480px; }
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap');
 
-/* 상단 남색 헤더 (betman 톤) */
+/* ── 기본 토대 ── */
+.stApp { background:#F0F2F5 !important; }
+.stApp, .stApp * { font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; }
+.block-container { padding-top:3rem !important; padding-bottom:2rem; max-width:460px; }
+header[data-testid="stHeader"] { background:transparent !important; height:0; }
+
+/* 기본 글자 또렷하게 강제 */
+.stApp p, .stApp label, .stApp span, .stApp div,
+.stMarkdown, [data-testid="stWidgetLabel"] p { color:#0B1B33 !important; }
+.stTextInput input { color:#0B1B33 !important; background:#FFFFFF !important;
+    border:1.5px solid #D5DBE3 !important; border-radius:10px !important; font-weight:600; }
+.stTextInput input::placeholder { color:#9AA4B2 !important; }
+
+/* ── 헤더 (딥네이비 + 골드 포인트) ── */
 .bm-header {
-    background: linear-gradient(135deg, #0F4C81 0%, #1565A8 100%);
-    color: #FFFFFF; padding: 18px 20px; border-radius: 12px 12px 0 0;
-    font-weight: 800; font-size: 19px; display:flex; align-items:center; gap:8px;
-    box-shadow: 0 2px 8px rgba(15,76,129,0.25);
+    background:linear-gradient(120deg,#0B1B33 0%,#13284A 60%,#1B3A6B 100%);
+    padding:20px 22px 18px; border-radius:16px 16px 0 0;
+    display:flex; align-items:center; gap:10px;
+    box-shadow:0 6px 18px rgba(11,27,51,0.28);
 }
-.bm-subbar {
-    background:#FFFFFF; padding:10px 16px; border-radius:0 0 12px 12px;
-    font-size:13px; color:#555; border:1px solid #E3E6EA; border-top:none;
-    margin-bottom:16px; display:flex; justify-content:space-between;
-}
-.bm-round { color:#0F4C81; font-weight:700; }
+.bm-header *, .bm-header { color:#FFFFFF !important; }
+.bm-logo { font-size:22px; }
+.bm-title { font-weight:900; font-size:19px; letter-spacing:-0.5px; }
+.bm-round { background:#F5C451; color:#0B1B33 !important; font-size:12px;
+    font-weight:800; padding:3px 9px; border-radius:20px; margin-left:auto; }
 
-/* 경기 카드 */
+.bm-subbar {
+    background:#FFFFFF; padding:11px 18px; border-radius:0 0 16px 16px;
+    font-size:12.5px; border:1px solid #E6E9EF; border-top:none;
+    margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;
+}
+.bm-subbar *, .bm-subbar { color:#5A6678 !important; font-weight:600; }
+.bm-deadline { color:#D64545 !important; font-weight:800; }
+
+/* ── 경기 카드 ── */
 .bm-card {
-    background:#FFFFFF; border:1px solid #E3E6EA; border-radius:10px;
-    padding:14px 16px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.04);
+    background:#FFFFFF; border:1px solid #E6E9EF; border-radius:14px;
+    padding:15px 17px 6px; margin-bottom:13px;
+    box-shadow:0 2px 10px rgba(11,27,51,0.05);
 }
 .bm-card-head {
     display:flex; justify-content:space-between; align-items:center;
-    font-size:12px; color:#8A93A0; font-weight:600; margin-bottom:8px;
-    border-bottom:1px dashed #EEE; padding-bottom:6px;
+    font-size:11.5px; margin-bottom:10px;
+    border-bottom:1px solid #F0F2F5; padding-bottom:8px;
 }
-.bm-num { background:#0F4C81; color:#FFF; padding:2px 7px; border-radius:4px; font-size:11px; margin-right:6px; }
-.bm-team { font-size:16px; font-weight:800; color:#1A1A1A; }
-.bm-badge-uo { background:#E8F5E9; color:#2E7D32; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; margin-left:6px; }
-.bm-badge-h  { background:#FFF3E0; color:#E65100; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; margin-left:6px; }
-.bm-badge-ev { background:#EDE7F6; color:#5E35B1; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; margin-left:6px; }
+.bm-card-head *, .bm-card-head { color:#9AA4B2 !important; font-weight:700; }
+.bm-num { background:#0B1B33 !important; color:#FFFFFF !important;
+    padding:2px 8px; border-radius:5px; font-size:11px; margin-right:7px; font-weight:800; }
+.bm-team { font-size:16.5px; font-weight:800; }
+.bm-team, .bm-team:not(.bm-num) { color:#0B1B33 !important; }
+.bm-badge-uo { background:#E3F4E8; color:#1E8449 !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
+.bm-badge-h  { background:#FCEEDB; color:#C9700A !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
+.bm-badge-ev { background:#E8EAF6; color:#3F51B5 !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
 
-/* 라디오 버튼: betman 선택지처럼 가로 정렬 */
-div.row-widget.stRadio > div { flex-direction:row; gap:8px; }
+/* ── ⭐ betman식 선택 버튼 (누르면 네이비로 칠해짐) ── */
+div.row-widget.stRadio > div { flex-direction:row; gap:9px; padding-bottom:9px; }
 div.row-widget.stRadio label {
-    background:#F4F5F7; border:1px solid #DDE1E6; border-radius:6px;
-    padding:6px 4px; flex:1; justify-content:center; font-weight:600;
+    background:#F4F6F9 !important;
+    border:1.5px solid #E0E5EC !important;
+    border-radius:10px !important;
+    padding:11px 4px !important;
+    flex:1; justify-content:center;
+    transition:all .15s ease;
+    cursor:pointer;
+}
+div.row-widget.stRadio label p {
+    color:#5A6678 !important; font-weight:800 !important; font-size:14.5px;
+}
+/* 기본 동그란 라디오 점 숨기기 */
+div.row-widget.stRadio label > div:first-child { display:none !important; }
+/* 선택된 버튼: 네이비 채움 + 흰 글씨 (:has 지원 브라우저) */
+div.row-widget.stRadio label:has(input:checked) {
+    background:#13284A !important;
+    border-color:#13284A !important;
+    box-shadow:0 4px 12px rgba(19,40,74,0.25);
+}
+div.row-widget.stRadio label:has(input:checked) p {
+    color:#FFFFFF !important;
 }
 
-/* 제출 버튼 */
+/* ── 제출 버튼 ── */
 .stButton button[kind="primary"] {
-    background:#0F4C81; border:none; font-weight:800; border-radius:8px; height:50px;
+    background:linear-gradient(120deg,#0B1B33,#1B3A6B) !important;
+    border:none !important; font-weight:900 !important; border-radius:12px !important;
+    height:54px !important; font-size:16px !important;
+    box-shadow:0 6px 16px rgba(11,27,51,0.3) !important;
 }
+.stButton button[kind="primary"] p { color:#FFFFFF !important; }
+.stButton button[kind="primary"]:hover { filter:brightness(1.12); }
+
+/* 탭 스타일 살짝 정리 */
+button[data-baseweb="tab"] { font-weight:700 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -77,6 +126,13 @@ QUESTION_MAP = {
     "q1": "1. 축구 최종 승무패", "q2": "2. 언더오버(2.5)", "q3": "3. 핸디캡(-1.0)",
     "q4": "4. 첫 골 득점 국가", "q5": "5. 전반전 결과", "q6": "6. 대한민국 총 득점",
     "q7": "7. 양 팀 모두 득점", "q8": "8. 첫 옐로카드", "q9": "9. PK 발생", "q10": "10. 최종스코어 홀짝"
+}
+
+# 문항별 선택지 (관리자 정답 입력 & 채점에 사용)
+OPTIONS_MAP = {
+    "q1": ["승", "무", "패"], "q2": ["언더", "오버"], "q3": ["승", "무", "패"],
+    "q4": ["한국", "상대팀", "무득점"], "q5": ["승", "무", "패"], "q6": ["0골", "1골", "2골+"],
+    "q7": ["Yes", "No"], "q8": ["한국", "상대팀", "없음"], "q9": ["Yes", "No"], "q10": ["홀수", "짝수"]
 }
 
 def load_data():
@@ -100,8 +156,8 @@ def save_pick(name, picks):
 # ------------------------------------------------------------
 # [3] 상단 헤더
 # ------------------------------------------------------------
-st.markdown('<div class="bm-header">🏆 기계의장부 스포츠 토토 <span class="bm-round">1회차</span></div>', unsafe_allow_html=True)
-st.markdown(f'<div class="bm-subbar"><span>이벤트 승부식</span><span>마감: 6/25(목) 09:50</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="bm-header"><span class="bm-logo">🏆</span><span class="bm-title">기계의장부 스포츠 토토</span><span class="bm-round">1회차</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="bm-subbar"><span>⚽ 이벤트 승부식</span><span class="bm-deadline">마감 6/25(목) 09:50</span></div>', unsafe_allow_html=True)
 
 tab_main, tab_my, tab_admin = st.tabs(["📝 마킹하기", "🧾 마이페이지", "👑 관리자"])
 
@@ -178,19 +234,56 @@ with tab_my:
             st.error("등록된 내역이 없습니다. 이름을 확인하세요.")
 
 # ============================================================
-# 탭 3: 관리자
+# 탭 3: 관리자 (정답 입력 → 자동 채점 → 순위)
 # ============================================================
 with tab_admin:
     st.markdown("### 👑 관리자 채점 룸")
     pw = st.text_input("관리자 암호", type="password")
+
     if pw == st.secrets.get("admin_pw", "1234"):
         st.success("✅ 인증 완료")
         df = load_data()
         st.metric("총 참여자 수", f"{len(df)}명")
-        if not df.empty:
-            st.dataframe(df, use_container_width=True)
-        if st.button("🏆 채점 및 순위 발표", use_container_width=True):
-            st.balloons()
-            st.info("정답 세팅 로직은 경기 종료 후 연결 예정")
+
+        # --- 제출 현황(엑셀 그대로 보기) ---
+        with st.expander("📋 제출 현황 전체 보기 (구글 시트 원본)", expanded=False):
+            if not df.empty:
+                st.dataframe(df, use_container_width=True)
+            else:
+                st.info("아직 제출된 픽이 없습니다.")
+
+        # --- 정답 입력 ---
+        st.markdown("#### 🎯 정답 입력 (경기 종료 후)")
+        answers = {}
+        for q, label in QUESTION_MAP.items():
+            answers[q] = st.selectbox(label, OPTIONS_MAP[q], key=f"ans_{q}")
+
+        # --- 자동 채점 ---
+        if st.button("🏆 자동 채점 및 순위 발표", type="primary", use_container_width=True):
+            if df.empty:
+                st.warning("채점할 제출 내역이 없습니다.")
+            else:
+                results = []
+                for _, row in df.iterrows():
+                    score = sum(1 for q in QUESTION_MAP
+                                if q in row and str(row[q]) == answers[q])
+                    results.append({"이름": row["name"], "맞은 개수": score})
+
+                rank_df = pd.DataFrame(results).sort_values(
+                    "맞은 개수", ascending=False).reset_index(drop=True)
+                rank_df.index = rank_df.index + 1  # 1등부터
+                rank_df.index.name = "순위"
+
+                st.balloons()
+                st.markdown("#### 🥇 최종 순위")
+
+                # 1~3등 강조
+                medals = ["🥇", "🥈", "🥉"]
+                for i, (_, r) in enumerate(rank_df.head(3).iterrows()):
+                    st.metric(f"{medals[i]} {i+1}등 · {r['이름']}",
+                              f"{r['맞은 개수']} / 10개 정답")
+
+                st.markdown("#### 📊 전체 순위표")
+                st.dataframe(rank_df, use_container_width=True)
     elif pw:
         st.error("암호가 틀렸습니다.")

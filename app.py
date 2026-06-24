@@ -65,33 +65,38 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
 .bm-card-head *, .bm-card-head { color:#9AA4B2 !important; font-weight:700; }
 .bm-num { background:#0B1B33 !important; color:#FFFFFF !important;
     padding:2px 8px; border-radius:5px; font-size:11px; margin-right:7px; font-weight:800; }
-.bm-team { font-size:16.5px; font-weight:800; }
+.bm-team { font-size:16.5px; font-weight:800; text-align:center;
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px;
+    padding:2px 0 8px; }
 .bm-team, .bm-team:not(.bm-num) { color:#0B1B33 !important; }
 .bm-badge-uo { background:#E3F4E8; color:#1E8449 !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
 .bm-badge-h  { background:#FCEEDB; color:#C9700A !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
 .bm-badge-ev { background:#E8EAF6; color:#3F51B5 !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
 
 /* ── ⭐ betman식 선택 버튼 (누르면 네이비로 칠해짐) ── */
-div.row-widget.stRadio > div { flex-direction:row; gap:9px; padding-bottom:9px; }
+div.row-widget.stRadio > div { flex-direction:row; gap:10px; padding-bottom:10px; flex-wrap:wrap; }
 div.row-widget.stRadio label {
     background:#F4F6F9 !important;
-    border:1.5px solid #E0E5EC !important;
-    border-radius:10px !important;
-    padding:11px 4px !important;
-    flex:1; justify-content:center;
+    border:2px solid #E0E5EC !important;
+    border-radius:12px !important;
+    padding:16px 6px !important;
+    flex:1 1 70px; min-width:70px;
+    display:flex !important; align-items:center; justify-content:center;
     transition:all .15s ease;
     cursor:pointer;
 }
 div.row-widget.stRadio label p {
-    color:#5A6678 !important; font-weight:800 !important; font-size:14.5px;
+    color:#5A6678 !important; font-weight:800 !important; font-size:16px;
 }
-/* 기본 동그란 라디오 점 숨기기 */
-div.row-widget.stRadio label > div:first-child { display:none !important; }
-/* 선택된 버튼: 네이비 채움 + 흰 글씨 (:has 지원 브라우저) */
+/* 동그란 라디오 점 완전 제거 */
+div.row-widget.stRadio label > div:first-child,
+div.row-widget.stRadio label [data-testid="stMarkdownContainer"] + div,
+div.row-widget.stRadio input { display:none !important; width:0 !important; }
+/* 선택된 버튼: 네이비 채움 + 흰 글씨 */
 div.row-widget.stRadio label:has(input:checked) {
     background:#13284A !important;
     border-color:#13284A !important;
-    box-shadow:0 4px 12px rgba(19,40,74,0.25);
+    box-shadow:0 4px 14px rgba(19,40,74,0.28);
 }
 div.row-widget.stRadio label:has(input:checked) p {
     color:#FFFFFF !important;
@@ -109,6 +114,26 @@ div.row-widget.stRadio label:has(input:checked) p {
 
 /* 탭 스타일 살짝 정리 */
 button[data-baseweb="tab"] { font-weight:700 !important; }
+
+/* ── 관리자 순위 카드 ── */
+.rank-card {
+    display:flex; align-items:center; gap:14px;
+    background:#FFFFFF; border:1px solid #E6E9EF; border-radius:14px;
+    padding:14px 18px; margin-bottom:11px;
+    box-shadow:0 2px 10px rgba(11,27,51,0.05);
+}
+.rank-card.top1 { background:linear-gradient(120deg,#FFF8E7,#FFFFFF); border:1.5px solid #F5C451; }
+.rank-medal { font-size:26px; min-width:34px; text-align:center; }
+.rank-name { font-size:17px; font-weight:800; color:#0B1B33 !important; flex:1; }
+.rank-score { font-size:15px; font-weight:800; color:#1B3A6B !important;
+    background:#EAF0F8; padding:5px 12px; border-radius:20px; }
+
+/* 섹션 소제목 가운데 정렬 */
+.center-title { text-align:center; font-size:18px; font-weight:900;
+    color:#0B1B33 !important; margin:8px 0 16px; }
+.center-sub { text-align:center; font-size:13px; color:#5A6678 !important; margin-bottom:18px; }
+/* selectbox 라벨 또렷하게 */
+[data-testid="stWidgetLabel"] p { font-weight:700 !important; color:#0B1B33 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -122,18 +147,29 @@ is_locked = now > DEADLINE
 # 구글 시트 연결 (secrets.toml 필요 - 아래 설명 참고)
 conn = st.connection("gsheets", type=GSheetsConnection)
 
+# 경기 팀 정보 (여기만 바꾸면 전체 반영)
+TEAM_HOME = "대한민국"
+TEAM_AWAY = "남아프리카공화국"
+MATCH = f"{TEAM_HOME} vs {TEAM_AWAY}"
+
+# 최종 스코어 선택지 (몇 대 몇 맞히기)
+SCORE_OPTIONS = ["0:0", "1:0", "2:0", "2:1", "3:0", "3:1",
+                 "0:1", "0:2", "1:2", "0:3", "1:3", "기타"]
+
 QUESTION_MAP = {
-    "q1": "1. 축구 최종 승무패", "q2": "2. 언더오버(2.5)", "q3": "3. 핸디캡(-1.0)",
-    "q4": "4. 첫 골 득점 국가", "q5": "5. 전반전 결과", "q6": "6. 대한민국 총 득점",
-    "q7": "7. 양 팀 모두 득점", "q8": "8. 첫 옐로카드", "q9": "9. PK 발생", "q10": "10. 최종스코어 홀짝"
+    "q1": "1. 최종 승무패", "q3": "2. 핸디캡(-1.0)",
+    "q4": "3. 첫 골 득점 국가", "q5": "4. 전반전 결과", "q6": "5. 대한민국 총 득점",
+    "q7": "6. 양 팀 모두 득점", "q8": "7. 첫 옐로카드", "q9": "8. PK 발생", "q10": "9. 최종 스코어"
 }
 
 # 문항별 선택지 (관리자 정답 입력 & 채점에 사용)
 OPTIONS_MAP = {
-    "q1": ["승", "무", "패"], "q2": ["언더", "오버"], "q3": ["승", "무", "패"],
+    "q1": ["승", "무", "패"], "q3": ["승", "무", "패"],
     "q4": ["한국", "상대팀", "무득점"], "q5": ["승", "무", "패"], "q6": ["0골", "1골", "2골+"],
-    "q7": ["Yes", "No"], "q8": ["한국", "상대팀", "없음"], "q9": ["Yes", "No"], "q10": ["홀수", "짝수"]
+    "q7": ["Yes", "No"], "q8": ["한국", "상대팀", "없음"], "q9": ["Yes", "No"], "q10": SCORE_OPTIONS
 }
+
+TOTAL_Q = len(QUESTION_MAP)  # 총 문항 수 (채점 표기에 사용)
 
 def load_data():
     """시트 전체를 DataFrame으로 읽기 (캐시 0초로 항상 최신)"""
@@ -174,37 +210,44 @@ with tab_main:
         if user_name:
             picks = {}
 
-            # 승부식 3종 (승무패 / 언더오버 / 핸디캡)
+            # 승부식 2종 (승무패 / 핸디캡)
             fixed = [
-                ("3431", "대한민국", "", ["승", "무", "패"], "q1"),
-                ("3442", "대한민국", "<span class='bm-badge-uo'>U/O 2.5</span>", ["언더", "오버"], "q2"),
-                ("3458", "대한민국", "<span class='bm-badge-h'>H -1.0</span>", ["승", "무", "패"], "q3"),
+                (1, MATCH, "<span class='bm-badge-uo'>승무패</span>", ["승", "무", "패"], "q1"),
+                (2, MATCH, "<span class='bm-badge-h'>핸디캡 -1.0</span>", ["승", "무", "패"], "q3"),
             ]
-            for code, team, badge, opts, key in fixed:
+            for num, team, badge, opts, key in fixed:
                 st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
-                    <span>⚽ 월드컵 축구</span><span>✕</span></div>
-                    <div class="bm-team"><span class="bm-num">{code}</span>{team}{badge}</div></div>""",
+                    <span>⚽ 월드컵 축구</span><span>경기 {num}</span></div>
+                    <div class="bm-team"><span class="bm-num">{num}</span>{team}{badge}</div></div>""",
                     unsafe_allow_html=True)
                 picks[key] = st.radio(key, opts, horizontal=True, label_visibility="collapsed", key=key)
 
-            # 이벤트 퀴즈 7종
+            # 이벤트 퀴즈 6종 (q4~q9) → 화면번호 3~8
             events = [
-                ("첫 골 득점 국가", ["한국", "상대팀", "무득점"]),
-                ("전반전 결과", ["승", "무", "패"]),
-                ("대한민국 총 득점", ["0골", "1골", "2골+"]),
-                ("양 팀 모두 득점", ["Yes", "No"]),
-                ("첫 옐로카드", ["한국", "상대팀", "없음"]),
-                ("페널티킥 발생", ["Yes", "No"]),
-                ("최종스코어 홀짝", ["홀수", "짝수"]),
+                ("q4", "첫 골 득점 국가", ["한국", "상대팀", "무득점"]),
+                ("q5", "전반전 결과", ["승", "무", "패"]),
+                ("q6", "대한민국 총 득점", ["0골", "1골", "2골+"]),
+                ("q7", "양 팀 모두 득점", ["Yes", "No"]),
+                ("q8", "첫 옐로카드", ["한국", "상대팀", "없음"]),
+                ("q9", "페널티킥 발생", ["Yes", "No"]),
             ]
-            for idx, (title, opts) in enumerate(events, start=4):
+            for num, (key, title, opts) in enumerate(events, start=3):
                 st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
-                    <span>🎯 이벤트 퀴즈</span><span>✕</span></div>
-                    <div class="bm-team"><span class="bm-num">350{idx}</span>{title}
+                    <span>🎯 이벤트 퀴즈</span><span>경기 {num}</span></div>
+                    <div class="bm-team"><span class="bm-num">{num}</span>{title}
                     <span class='bm-badge-ev'>EVENT</span></div></div>""",
                     unsafe_allow_html=True)
-                picks[f"q{idx}"] = st.radio(f"q{idx}", opts, horizontal=True,
-                                            label_visibility="collapsed", key=f"q{idx}")
+                picks[key] = st.radio(key, opts, horizontal=True,
+                                      label_visibility="collapsed", key=key)
+
+            # q10: 최종 스코어 맞히기 (몇 대 몇) → 화면번호 9
+            st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
+                <span>🏁 최종 스코어</span><span>경기 9</span></div>
+                <div class="bm-team"><span class="bm-num">9</span>{MATCH}
+                <span class='bm-badge-h'>SCORE</span></div></div>""",
+                unsafe_allow_html=True)
+            picks["q10"] = st.radio("q10", SCORE_OPTIONS, horizontal=True,
+                                    label_visibility="collapsed", key="q10")
 
             st.write("")
             if st.button("✅ 최종 조합 구매 (픽 제출)", type="primary", use_container_width=True):
@@ -218,18 +261,25 @@ with tab_main:
 # 탭 2: 마이페이지
 # ============================================================
 with tab_my:
-    st.markdown("### 🧾 내 토토 영수증")
-    search = st.text_input("조회할 이름", key="search")
+    st.markdown('<div class="center-title">🧾 내 토토 영수증</div>', unsafe_allow_html=True)
+    search = st.text_input("조회할 이름", key="search", placeholder="이름을 입력하세요")
     if search:
         df = load_data()
         if not df.empty and search in df["name"].values:
             row = df[df["name"] == search].iloc[-1]
-            st.success(f"**{search}**님의 마킹 내역")
+            st.markdown(f'<div class="center-sub"><b>{search}</b>님의 마킹 내역</div>',
+                        unsafe_allow_html=True)
+            rows_html = ""
             for q, label in QUESTION_MAP.items():
                 if q in row and pd.notna(row[q]):
-                    st.markdown(f"- **{label}** → `{row[q]}`")
+                    rows_html += f"""<div style="display:flex;justify-content:space-between;
+                        padding:11px 4px;border-bottom:1px solid #F0F2F5;">
+                        <span style="color:#5A6678;font-weight:600;">{label}</span>
+                        <span style="color:#0B1B33;font-weight:800;">{row[q]}</span></div>"""
+            st.markdown(f"""<div class="bm-card" style="padding:8px 18px;">{rows_html}</div>""",
+                        unsafe_allow_html=True)
             if not is_locked:
-                st.warning("💡 수정: '마킹하기'에서 같은 이름으로 재제출")
+                st.info("💡 수정하려면 '마킹하기'에서 같은 이름으로 다시 제출하세요.")
         else:
             st.error("등록된 내역이 없습니다. 이름을 확인하세요.")
 
@@ -237,53 +287,42 @@ with tab_my:
 # 탭 3: 관리자 (정답 입력 → 자동 채점 → 순위)
 # ============================================================
 with tab_admin:
-    st.markdown("### 👑 관리자 채점 룸")
-    pw = st.text_input("관리자 암호", type="password")
+    st.markdown('<div class="center-title">👑 관리자 채점 룸</div>', unsafe_allow_html=True)
 
-    if pw == st.secrets.get("admin_pw", "1234"):
-        st.success("✅ 인증 완료")
-        df = load_data()
-        st.metric("총 참여자 수", f"{len(df)}명")
+    df = load_data()
+    st.markdown(f'<div class="center-sub">현재 참여자 <b>{len(df)}명</b> · 경기 종료 후 정답을 입력하세요</div>',
+                unsafe_allow_html=True)
 
-        # --- 제출 현황(엑셀 그대로 보기) ---
-        with st.expander("📋 제출 현황 전체 보기 (구글 시트 원본)", expanded=False):
-            if not df.empty:
-                st.dataframe(df, use_container_width=True)
-            else:
-                st.info("아직 제출된 픽이 없습니다.")
+    # --- 정답 입력 ---
+    st.markdown('<div class="center-title" style="font-size:15px;">🎯 정답 입력</div>', unsafe_allow_html=True)
+    answers = {}
+    for q, label in QUESTION_MAP.items():
+        answers[q] = st.selectbox(label, OPTIONS_MAP[q], key=f"ans_{q}")
 
-        # --- 정답 입력 ---
-        st.markdown("#### 🎯 정답 입력 (경기 종료 후)")
-        answers = {}
-        for q, label in QUESTION_MAP.items():
-            answers[q] = st.selectbox(label, OPTIONS_MAP[q], key=f"ans_{q}")
+    st.write("")
+    # --- 자동 채점 ---
+    if st.button("🏆 자동 채점 및 순위 발표", type="primary", use_container_width=True):
+        if df.empty:
+            st.warning("채점할 제출 내역이 없습니다.")
+        else:
+            results = []
+            for _, row in df.iterrows():
+                score = sum(1 for q in QUESTION_MAP
+                            if q in row and str(row[q]) == answers[q])
+                results.append({"이름": row["name"], "맞은 개수": score})
 
-        # --- 자동 채점 ---
-        if st.button("🏆 자동 채점 및 순위 발표", type="primary", use_container_width=True):
-            if df.empty:
-                st.warning("채점할 제출 내역이 없습니다.")
-            else:
-                results = []
-                for _, row in df.iterrows():
-                    score = sum(1 for q in QUESTION_MAP
-                                if q in row and str(row[q]) == answers[q])
-                    results.append({"이름": row["name"], "맞은 개수": score})
+            rank_df = pd.DataFrame(results).sort_values(
+                "맞은 개수", ascending=False).reset_index(drop=True)
 
-                rank_df = pd.DataFrame(results).sort_values(
-                    "맞은 개수", ascending=False).reset_index(drop=True)
-                rank_df.index = rank_df.index + 1  # 1등부터
-                rank_df.index.name = "순위"
+            st.balloons()
+            st.markdown('<div class="center-title">🏅 최종 순위</div>', unsafe_allow_html=True)
 
-                st.balloons()
-                st.markdown("#### 🥇 최종 순위")
-
-                # 1~3등 강조
-                medals = ["🥇", "🥈", "🥉"]
-                for i, (_, r) in enumerate(rank_df.head(3).iterrows()):
-                    st.metric(f"{medals[i]} {i+1}등 · {r['이름']}",
-                              f"{r['맞은 개수']} / 10개 정답")
-
-                st.markdown("#### 📊 전체 순위표")
-                st.dataframe(rank_df, use_container_width=True)
-    elif pw:
-        st.error("암호가 틀렸습니다.")
+            medals = ["🥇", "🥈", "🥉"]
+            for i, r in rank_df.iterrows():
+                medal = medals[i] if i < 3 else f"{i+1}"
+                top = "top1" if i == 0 else ""
+                st.markdown(f"""<div class="rank-card {top}">
+                    <span class="rank-medal">{medal}</span>
+                    <span class="rank-name">{r['이름']}</span>
+                    <span class="rank-score">{r['맞은 개수']} / {TOTAL_Q}</span></div>""",
+                    unsafe_allow_html=True)

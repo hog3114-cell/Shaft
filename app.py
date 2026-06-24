@@ -77,40 +77,26 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
 .bm-badge-ev { background:#EDEAF7; color:#5A4AB5 !important; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:800; }
 
 /* ── ⭐ betman식 선택 버튼 (누르면 네이비로 칠해짐) ── */
-/* ── ⭐ 큼직한 네모 선택 버튼 (한 줄 균등 분배) ── */
-div[data-testid="stRadio"] > div { width:100% !important; }
-div[role="radiogroup"] {
-    display:flex !important; flex-direction:row !important;
-    gap:10px !important; flex-wrap:nowrap !important;
-    justify-content:stretch !important; align-items:stretch !important;
-    width:100% !important; padding:4px 0 16px !important;
-}
-div[role="radiogroup"] > label {
-    background:#F5F7FA !important;
-    border:2px solid #E6E9EF !important;
-    border-radius:13px !important;
-    padding:16px 4px !important;
-    margin:0 !important;
-    flex:1 1 0 !important; width:auto !important; min-width:0 !important;
-    display:flex !important; align-items:center !important; justify-content:center !important;
-    cursor:pointer; transition:all .15s ease;
-}
-div[role="radiogroup"] > label:hover { border-color:#B9C2D0 !important; }
-/* 숨긴 동그라미가 자리 차지하던 문제 → 완전 제거 */
-div[role="radiogroup"] > label > div:first-child {
-    display:none !important; width:0 !important; height:0 !important;
-    margin:0 !important; padding:0 !important;
-}
-div[role="radiogroup"] > label > div:last-child,
-div[role="radiogroup"] > label p {
+/* ── ⭐ 선택 버튼 (컬럼+버튼 방식, 균등 정렬 보장) ── */
+div[data-testid="stHorizontalBlock"] { gap:10px !important; }
+/* 미선택 버튼 (secondary) */
+div[data-testid="stHorizontalBlock"] .stButton button[kind="secondary"] {
+    background:#F5F7FA !important; border:2px solid #E6E9EF !important;
+    border-radius:13px !important; height:54px !important;
     color:#5A6678 !important; font-weight:800 !important; font-size:16px !important;
-    text-align:center !important; width:100%; white-space:nowrap; margin:0 !important;
+    box-shadow:none !important; transition:all .15s ease;
 }
-div[role="radiogroup"] > label:has(input:checked) {
-    background:#13284A !important; border-color:#13284A !important;
-    box-shadow:0 6px 16px rgba(19,40,74,0.22);
+div[data-testid="stHorizontalBlock"] .stButton button[kind="secondary"]:hover {
+    border-color:#B9C2D0 !important; color:#0B1B33 !important;
 }
-div[role="radiogroup"] > label:has(input:checked) p { color:#FFFFFF !important; }
+/* 선택된 버튼 (primary) */
+div[data-testid="stHorizontalBlock"] .stButton button[kind="primary"] {
+    background:#13284A !important; border:2px solid #13284A !important;
+    border-radius:13px !important; height:54px !important;
+    color:#FFFFFF !important; font-weight:800 !important; font-size:16px !important;
+    box-shadow:0 6px 16px rgba(19,40,74,0.22) !important;
+}
+div[data-testid="stHorizontalBlock"] .stButton button[kind="primary"] p { color:#FFFFFF !important; }
 
 /* ── 제출 버튼 ── */
 .stButton button[kind="primary"] {
@@ -284,6 +270,22 @@ with tab_main:
             </div>""", unsafe_allow_html=True)
         user_name = st.text_input("참여자 이름", placeholder="이름을 입력하면 마킹지가 열립니다")
 
+        def pick_buttons(key, options):
+            """라디오 대신 컬럼+버튼으로 균등한 선택 UI 생성. 선택값 반환."""
+            sel_key = f"sel_{key}"
+            if sel_key not in st.session_state:
+                st.session_state[sel_key] = None
+            cols = st.columns(len(options))
+            for c, opt in zip(cols, options):
+                with c:
+                    chosen = st.session_state[sel_key] == opt
+                    if st.button(opt, key=f"btn_{key}_{opt}",
+                                 use_container_width=True,
+                                 type="primary" if chosen else "secondary"):
+                        st.session_state[sel_key] = opt
+                        st.rerun()
+            return st.session_state[sel_key]
+
         if user_name:
             picks = {}
 
@@ -298,7 +300,7 @@ with tab_main:
                     <div class="bm-team">{team}</div>
                     <div class="bm-sub">{badge}</div></div>""",
                     unsafe_allow_html=True)
-                picks[key] = st.radio(key, opts, horizontal=True, label_visibility="collapsed", key=key)
+                picks[key] = pick_buttons(key, opts)
 
             # 이벤트 퀴즈 6종 (q4~q9) → 화면번호 3~8
             events = [
@@ -314,8 +316,7 @@ with tab_main:
                     <span class="bm-tag">🎯 이벤트 퀴즈</span><span class="bm-no">EVENT {num}</span></div>
                     <div class="bm-team">{title}</div></div>""",
                     unsafe_allow_html=True)
-                picks[key] = st.radio(key, opts, horizontal=True,
-                                      label_visibility="collapsed", key=key)
+                picks[key] = pick_buttons(key, opts)
 
             # q10: 최종 스코어 맞히기 → 화면번호 9 (선택지 많아 드롭다운)
             st.markdown(f"""<div class="bm-card"><div class="bm-card-head">

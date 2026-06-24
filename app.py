@@ -8,25 +8,18 @@ st.markdown("""
     /* 전체 배경을 프로토 사이트처럼 옅은 회색으로 */
     .stApp { background-color: #F4F5F7; }
     
-    /* 프로토 상단 헤더 스타일 */
-    .proto-header { background-color: white; padding: 15px; border-bottom: 1px solid #ddd; font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; }
-    
-    /* 조합 / 한경기 탭 스타일 (사진과 동일하게 남색/흰색) */
-    .proto-tabs { display: flex; text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 10px; border-bottom: 1px solid #0F4C81; }
+    /* 탭 상단 남색 디자인 */
+    .proto-header { background-color: white; padding: 15px; border-bottom: 1px solid #ddd; font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .proto-tabs { display: flex; text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 15px; border-bottom: 1px solid #0F4C81; }
     .tab-active { background-color: #0F4C81; color: white; padding: 10px; width: 50%; }
     .tab-inactive { background-color: white; color: #555; padding: 10px; width: 50%; border-top: 1px solid #ddd; border-right: 1px solid #ddd; }
-    
-    /* 개별 경기 카드 스타일 */
-    .match-card { background-color: white; border: 1px solid #ddd; margin-bottom: -1px; padding: 12px; }
-    .match-title { font-size: 12px; color: #666; margin-bottom: 8px; display: flex; justify-content: space-between; }
-    .match-content { font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
     
     /* U/O, 핸디캡 배지 스타일 */
     .badge-uo { background-color: #E8F5E9; color: #2E7D32; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-left: 5px; }
     .badge-h { background-color: #FFF3E0; color: #E65100; padding: 2px 6px; border-radius: 4px; font-size: 12px; margin-left: 5px; }
     
-    /* 입력창 및 라디오 버튼 커스텀 */
-    div[role="radiogroup"] { flex-direction: row; justify-content: flex-end; gap: 10px; }
+    /* 라디오 버튼을 가로로 예쁘게 정렬 */
+    div.row-widget.stRadio > div { flex-direction: row; justify-content: flex-end; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -55,22 +48,52 @@ with tab_main:
         if user_name:
             picks = {}
             
-            # [1경기] 일반 승무패 (사진 복제)
-            st.markdown('<div class="match-card"><div class="match-title"><span>⚽ 축월드컵 축구 승무패</span><span>✕</span></div><div class="match-content"><span>3431 대한민국</span></div></div>', unsafe_allow_html=True)
-            picks['q1'] = st.radio("1", ["승", "무", "패"], label_visibility="collapsed", key="q1")
+            # [1경기] 일체형 카드 구조 적용 (가장 중요한 디자인 변경 포인트!)
+            with st.container(border=True):
+                st.markdown("<div style='font-size:12px; color:#666; margin-bottom:5px;'>⚽ 축월드컵 축구 승무패 <span style='float:right;'>✕</span></div>", unsafe_allow_html=True)
+                col1, col2 = st.columns([1.2, 1.8]) # 화면 비율을 쪼개어 배치
+                with col1:
+                    st.markdown("<div style='font-size:15px; font-weight:bold; padding-top:8px;'>3431 대한민국</div>", unsafe_allow_html=True)
+                with col2:
+                    picks['q1'] = st.radio("1", ["승", "무", "패"], horizontal=True, label_visibility="collapsed", key="q1")
             
-            # [2경기] 언더오버 (사진 속 초록색 U/O 배지 복제)
-            st.markdown('<div class="match-card"><div class="match-title"><span>⚽ 축월드컵 축구 언더오버</span><span>✕</span></div><div class="match-content"><span>3442 대한민국 <span class="badge-uo">U/O 2.5</span></span></div></div>', unsafe_allow_html=True)
-            picks['q2'] = st.radio("2", ["언더", "오버"], label_visibility="collapsed", key="q2")
+            # [2경기] 언더오버
+            with st.container(border=True):
+                st.markdown("<div style='font-size:12px; color:#666; margin-bottom:5px;'>⚽ 축월드컵 축구 언더오버 <span style='float:right;'>✕</span></div>", unsafe_allow_html=True)
+                col1, col2 = st.columns([1.2, 1.8])
+                with col1:
+                    st.markdown("<div style='font-size:15px; font-weight:bold; padding-top:8px;'>3442 대한민국 <span class='badge-uo'>U/O 2.5</span></div>", unsafe_allow_html=True)
+                with col2:
+                    picks['q2'] = st.radio("2", ["언더", "오버"], horizontal=True, label_visibility="collapsed", key="q2")
+                    
+            # [3경기] 핸디캡
+            with st.container(border=True):
+                st.markdown("<div style='font-size:12px; color:#666; margin-bottom:5px;'>⚽ 축월드컵 축구 핸디캡 <span style='float:right;'>✕</span></div>", unsafe_allow_html=True)
+                col1, col2 = st.columns([1.2, 1.8])
+                with col1:
+                    st.markdown("<div style='font-size:15px; font-weight:bold; padding-top:8px;'>3458 대한민국 <span class='badge-h'>H -1.0</span></div>", unsafe_allow_html=True)
+                with col2:
+                    picks['q3'] = st.radio("3", ["승", "무", "패"], horizontal=True, label_visibility="collapsed", key="q3")
+
+            # [4~10경기] 사전에 기획한 10개 문항 풀버전 채우기
+            questions = [
+                ("첫 골 득점 국가", ["한국", "상대팀", "무득점"]),
+                ("전반전 결과", ["승", "무", "패"]),
+                ("대한민국 총 득점 수", ["0골", "1골", "2골이상"]),
+                ("양 팀 모두 득점 여부", ["Yes", "No"]),
+                ("첫 옐로카드 국가", ["한국", "상대팀", "없음"]),
+                ("페널티킥(PK) 발생", ["Yes", "No"]),
+                ("최종 스코어 홀/짝", ["홀수", "짝수"])
+            ]
             
-            # [3경기] 핸디캡 (사진 속 주황색 H 배지 복제)
-            st.markdown('<div class="match-card"><div class="match-title"><span>⚽ 축월드컵 축구 핸디캡</span><span>✕</span></div><div class="match-content"><span>3458 대한민국 <span class="badge-h">H -1.0</span></span></div></div>', unsafe_allow_html=True)
-            picks['q3'] = st.radio("3", ["승", "무", "패"], label_visibility="collapsed", key="q3")
-            
-            # [4~10경기] (간략화 표기, 실제 사용 시 위 양식을 복사하여 10번까지 늘리면 됩니다)
-            for i in range(4, 11):
-                st.markdown(f'<div class="match-card"><div class="match-title"><span>⚽ 축월드컵 이벤트 퀴즈</span><span>✕</span></div><div class="match-content"><span>350{i} 특별항목 {i}번</span></div></div>', unsafe_allow_html=True)
-                picks[f'q{i}'] = st.radio(str(i), ["1번 옵션", "2번 옵션"], label_visibility="collapsed", key=f"q{i}")
+            for idx, (q_title, options) in enumerate(questions, start=4):
+                with st.container(border=True):
+                    st.markdown(f"<div style='font-size:12px; color:#666; margin-bottom:5px;'>⚽ 축월드컵 이벤트 퀴즈 <span style='float:right;'>✕</span></div>", unsafe_allow_html=True)
+                    col1, col2 = st.columns([1.2, 1.8])
+                    with col1:
+                        st.markdown(f"<div style='font-size:15px; font-weight:bold; padding-top:8px;'>350{idx} {q_title}</div>", unsafe_allow_html=True)
+                    with col2:
+                        picks[f'q{idx}'] = st.radio(str(idx), options, horizontal=True, label_visibility="collapsed", key=f"q{idx}")
             
             st.write("---")
             if st.button("✅ 최종 조합 구매(제출)하기", type="primary", use_container_width=True):

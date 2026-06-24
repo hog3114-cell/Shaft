@@ -55,49 +55,44 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
 /* ── 경기 카드 ── */
 .bm-card {
     background:#FFFFFF; border:1px solid #ECEFF3; border-radius:16px;
-    padding:16px 18px 4px; margin-bottom:10px;
+    padding:16px 18px 14px; margin-bottom:10px;
     box-shadow:0 2px 12px rgba(11,27,51,0.04);
 }
 .bm-card-head {
     display:flex; justify-content:space-between; align-items:center;
     font-size:11px; margin-bottom:12px;
-    padding-bottom:0;
 }
-.bm-card-head *, .bm-card-head { color:#AEB6C2 !important; font-weight:700; letter-spacing:0.3px; }
-.bm-num { background:#13284A !important; color:#FFFFFF !important;
-    padding:3px 9px; border-radius:7px; font-size:12px; margin-right:9px; font-weight:800; }
+.bm-tag { color:#8A93A0 !important; font-weight:700; letter-spacing:0.2px; }
+.bm-no { color:#13284A !important; font-weight:800; background:#EEF1F6;
+    padding:3px 10px; border-radius:20px; font-size:10.5px; letter-spacing:0.5px; }
 .bm-team { font-size:17px; font-weight:800; text-align:center;
-    display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:7px;
-    padding:2px 0 12px; line-height:1.4; }
-.bm-team, .bm-team span:not(.bm-num):not([class*="badge"]) { color:#0B1B33 !important; }
-.bm-badge-uo { background:#EAF0F8; color:#1B3A6B !important; padding:3px 10px; border-radius:7px; font-size:11.5px; font-weight:800; }
-.bm-badge-h  { background:#FCEEDB; color:#C9700A !important; padding:3px 10px; border-radius:7px; font-size:11.5px; font-weight:800; }
-.bm-badge-ev { background:#EDEAF7; color:#5A4AB5 !important; padding:3px 10px; border-radius:7px; font-size:11.5px; font-weight:800; }
+    color:#0B1B33 !important; line-height:1.4; padding:2px 0; }
+.bm-sub { text-align:center; padding-top:9px; }
+.bm-badge-uo { background:#EAF0F8; color:#1B3A6B !important; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:800; }
+.bm-badge-h  { background:#FCEEDB; color:#C9700A !important; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:800; }
+.bm-badge-ev { background:#EDEAF7; color:#5A4AB5 !important; padding:4px 12px; border-radius:8px; font-size:12px; font-weight:800; }
 
 /* ── ⭐ betman식 선택 버튼 (누르면 네이비로 칠해짐) ── */
-/* ── ⭐ 큼직한 네모 선택 버튼 (가운데 정렬) ── */
-div[role="radiogroup"] { flex-direction:row !important; gap:10px !important; flex-wrap:wrap !important;
+/* ── ⭐ 큼직한 네모 선택 버튼 (한 줄 균등 분배) ── */
+div[role="radiogroup"] { flex-direction:row !important; gap:9px !important; flex-wrap:nowrap !important;
     justify-content:center !important; padding:4px 0 14px !important; }
 div[role="radiogroup"] > label {
-    background:#F4F6F9 !important;
+    background:#F5F7FA !important;
     border:2px solid #E6E9EF !important;
-    border-radius:12px !important;
-    padding:15px 8px !important;
+    border-radius:13px !important;
+    padding:15px 4px !important;
     margin:0 !important;
-    flex:0 1 92px !important; min-width:78px !important; max-width:120px;
+    flex:1 1 0 !important; min-width:0 !important;
     display:flex !important; align-items:center !important; justify-content:center !important;
     cursor:pointer; transition:all .15s ease;
 }
 div[role="radiogroup"] > label:hover { border-color:#B9C2D0 !important; }
-/* 동그란 라디오 동그라미 숨기기 */
 div[role="radiogroup"] > label > div:first-child { display:none !important; }
-/* 글자 키우고 가운데 */
 div[role="radiogroup"] > label > div:last-child,
 div[role="radiogroup"] > label p {
-    color:#5A6678 !important; font-weight:800 !important; font-size:16px !important;
-    text-align:center !important; width:100%;
+    color:#5A6678 !important; font-weight:800 !important; font-size:15.5px !important;
+    text-align:center !important; width:100%; white-space:nowrap;
 }
-/* 선택된 버튼: 네이비 채움 */
 div[role="radiogroup"] > label:has(input:checked) {
     background:#13284A !important; border-color:#13284A !important;
     box-shadow:0 6px 16px rgba(19,40,74,0.22);
@@ -140,6 +135,12 @@ button[data-baseweb="tab"] { font-weight:800 !important; font-size:15px !importa
 .center-sub { text-align:center; font-size:13px; color:#5A6678 !important; margin-bottom:18px; }
 /* selectbox 라벨 또렷하게 */
 [data-testid="stWidgetLabel"] p { font-weight:700 !important; color:#0B1B33 !important; }
+/* selectbox 박스 스타일 (스코어 드롭다운) */
+div[data-baseweb="select"] > div {
+    border:2px solid #E6E9EF !important; border-radius:13px !important;
+    background:#F5F7FA !important; min-height:50px; font-weight:800 !important;
+}
+div[data-baseweb="select"] div { color:#0B1B33 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -154,8 +155,8 @@ is_locked = now > DEADLINE
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # 경기 팀 정보 (여기만 바꾸면 전체 반영)
-TEAM_HOME = "대한민국"
-TEAM_AWAY = "남아프리카공화국"
+TEAM_HOME = "🇰🇷 대한민국"
+TEAM_AWAY = "남아프리카공화국 🇿🇦"
 MATCH = f"{TEAM_HOME} vs {TEAM_AWAY}"
 
 # 최종 스코어 선택지 (몇 대 몇 맞히기)
@@ -163,14 +164,14 @@ SCORE_OPTIONS = ["0:0", "1:0", "2:0", "2:1", "3:0", "3:1",
                  "0:1", "0:2", "1:2", "0:3", "1:3", "기타"]
 
 QUESTION_MAP = {
-    "q1": "1. 최종 승무패", "q3": "2. 핸디캡(-1.0)",
+    "q1": "1. 최종 승무패", "q3": "2. 언더오버(2.0)",
     "q4": "3. 첫 골 득점 국가", "q5": "4. 전반전 결과", "q6": "5. 대한민국 총 득점",
     "q7": "6. 양 팀 모두 득점", "q8": "7. 첫 옐로카드", "q9": "8. PK 발생", "q10": "9. 최종 스코어"
 }
 
 # 문항별 선택지 (관리자 정답 입력 & 채점에 사용)
 OPTIONS_MAP = {
-    "q1": ["승", "무", "패"], "q3": ["승", "무", "패"],
+    "q1": ["승", "무", "패"], "q3": ["언더", "오버"],
     "q4": ["한국", "상대팀", "무득점"], "q5": ["승", "무", "패"], "q6": ["0골", "1골", "2골+"],
     "q7": ["Yes", "No"], "q8": ["한국", "상대팀", "없음"], "q9": ["Yes", "No"], "q10": SCORE_OPTIONS
 }
@@ -216,15 +217,16 @@ with tab_main:
         if user_name:
             picks = {}
 
-            # 승부식 2종 (승무패 / 핸디캡)
+            # 승부식 2종 (승무패 / 언더오버)
             fixed = [
                 (1, MATCH, "<span class='bm-badge-uo'>승무패</span>", ["승", "무", "패"], "q1"),
-                (2, MATCH, "<span class='bm-badge-h'>핸디캡 -1.0</span>", ["승", "무", "패"], "q3"),
+                (2, MATCH, "<span class='bm-badge-h'>언더오버 2.0</span>", ["언더", "오버"], "q3"),
             ]
             for num, team, badge, opts, key in fixed:
                 st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
-                    <span>⚽ 월드컵 축구</span><span>EVENT {num}</span></div>
-                    <div class="bm-team"><span class="bm-num">{num}</span>{team}{badge}</div></div>""",
+                    <span class="bm-tag">⚽ 월드컵 축구</span><span class="bm-no">EVENT {num}</span></div>
+                    <div class="bm-team">{team}</div>
+                    <div class="bm-sub">{badge}</div></div>""",
                     unsafe_allow_html=True)
                 picks[key] = st.radio(key, opts, horizontal=True, label_visibility="collapsed", key=key)
 
@@ -239,20 +241,20 @@ with tab_main:
             ]
             for num, (key, title, opts) in enumerate(events, start=3):
                 st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
-                    <span>🎯 이벤트 퀴즈</span><span>EVENT {num}</span></div>
-                    <div class="bm-team"><span class="bm-num">{num}</span>{title}</div></div>""",
+                    <span class="bm-tag">🎯 이벤트 퀴즈</span><span class="bm-no">EVENT {num}</span></div>
+                    <div class="bm-team">{title}</div></div>""",
                     unsafe_allow_html=True)
                 picks[key] = st.radio(key, opts, horizontal=True,
                                       label_visibility="collapsed", key=key)
 
-            # q10: 최종 스코어 맞히기 (몇 대 몇) → 화면번호 9
+            # q10: 최종 스코어 맞히기 → 화면번호 9 (선택지 많아 드롭다운)
             st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
-                <span>🏁 최종 스코어</span><span>EVENT 9</span></div>
-                <div class="bm-team"><span class="bm-num">9</span>{MATCH}
-                <span class='bm-badge-h'>SCORE</span></div></div>""",
+                <span class="bm-tag">🏁 최종 스코어</span><span class="bm-no">EVENT 9</span></div>
+                <div class="bm-team">{MATCH}</div>
+                <div class="bm-sub"><span class='bm-badge-h'>아래에서 최종 스코어를 고르세요</span></div></div>""",
                 unsafe_allow_html=True)
-            picks["q10"] = st.radio("q10", SCORE_OPTIONS, horizontal=True,
-                                    label_visibility="collapsed", key="q10")
+            picks["q10"] = st.selectbox("q10", SCORE_OPTIONS,
+                                        label_visibility="collapsed", key="q10")
 
             st.write("")
             if st.button("✅ 최종 조합 구매 (픽 제출)", type="primary", use_container_width=True):

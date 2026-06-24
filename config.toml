@@ -1,0 +1,8 @@
+[theme]
+# 다크모드 사용자여도 무조건 밝게(betman과 동일) 고정
+base = "light"
+primaryColor = "#0F4C81"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F5F7"
+textColor = "#1A1A1A"
+font = "sans serif"

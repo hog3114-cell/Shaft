@@ -154,11 +154,17 @@ div[data-baseweb="select"] [data-baseweb="select"] > div:first-child { justify-c
 [data-testid="stToolbar"] { display:none !important; }
 [data-testid="stToolbarActions"] { display:none !important; }
 header[data-testid="stHeader"] { display:none !important; }
-/* 하단 'Hosted with Streamlit' 배지 숨기기 */
+/* 하단 'Hosted with Streamlit' 배지 숨기기 (여러 구조 대응) */
 [data-testid="stBottom"] { display:none !important; }
+[data-testid="stBottomBlockContainer"] { display:none !important; }
+[data-testid="stStatusWidget"] { display:none !important; }
 footer { display:none !important; }
-.viewerBadge_container__1QSob, [class*="viewerBadge"] { display:none !important; }
-a[href*="streamlit.io"] { display:none !important; }
+.viewerBadge_container__1QSob, [class*="viewerBadge"], [class*="_viewerBadge"] { display:none !important; }
+a[href*="streamlit.io"], a[href*="share.streamlit"] { display:none !important; }
+/* 우하단 고정 배지(보트 아이콘 등) 위치 기반 차단 */
+.stApp > div[style*="position: fixed"][style*="bottom"] { display:none !important; }
+iframe[title="streamlitApp"] ~ div { display:none !important; }
+div[class*="profileContainer"], div[class*="ManageApp"] { display:none !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -263,6 +269,29 @@ def render_rank_cards(rank_df, top_rank=None):
 # ------------------------------------------------------------
 st.markdown('<div class="bm-header"><span class="bm-round">1회차</span><div style="display:flex;align-items:center;gap:9px;"><span class="bm-logo">🏆</span><span class="bm-title" style="color:#FFFFFF !important;">기계의장부 스포츠 토토</span></div></div>', unsafe_allow_html=True)
 st.markdown('<div class="bm-subbar"><span>⚽ 이벤트 승부식</span><span class="bm-deadline">마감 6/25(목) 10:00</span></div>', unsafe_allow_html=True)
+
+# --- 하단 Streamlit 배지 JS로 강제 제거 (CSS로 안 지워질 때 대비) ---
+import streamlit.components.v1 as components
+components.html("""
+<script>
+function killBadge() {
+    const doc = window.parent.document;
+    const sels = ['[data-testid="stStatusWidget"]','[class*="viewerBadge"]',
+        'a[href*="streamlit.io"]','a[href*="share.streamlit"]','footer','[data-testid="stBottom"]'];
+    sels.forEach(s => doc.querySelectorAll(s).forEach(el => el.style.display='none'));
+    doc.querySelectorAll('div').forEach(el => {
+        const cs = window.parent.getComputedStyle(el);
+        if (cs.position === 'fixed' && el.offsetHeight < 90 &&
+            (el.innerHTML.toLowerCase().includes('streamlit') ||
+             el.querySelector('a[href*="streamlit"]'))) {
+            el.style.display = 'none';
+        }
+    });
+}
+killBadge();
+setInterval(killBadge, 400);
+</script>
+""", height=0)
 
 tab_main, tab_my, tab_rank, tab_admin = st.tabs(["📝 마킹하기", "🧾 마이페이지", "🏆 순위발표", "👑 관리자"])
 

@@ -30,64 +30,66 @@ header[data-testid="stHeader"] { background:transparent !important; height:0; }
     border:1.5px solid #D5DBE3 !important; border-radius:10px !important; font-weight:600; }
 .stTextInput input::placeholder { color:#9AA4B2 !important; }
 
-/* ── 헤더 (딥네이비 + 골드 포인트) ── */
+/* ── 헤더 (딥네이비 + 골드 포인트, 중앙 정렬) ── */
 .bm-header {
     background:linear-gradient(120deg,#0B1B33 0%,#13284A 60%,#1B3A6B 100%);
-    padding:20px 22px 18px; border-radius:16px 16px 0 0;
-    display:flex; align-items:center; gap:10px;
-    box-shadow:0 6px 18px rgba(11,27,51,0.28);
+    padding:22px 22px 20px; border-radius:18px 18px 0 0;
+    display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
+    box-shadow:0 6px 18px rgba(11,27,51,0.28); position:relative;
 }
 .bm-header *, .bm-header { color:#FFFFFF !important; }
-.bm-header .bm-title { color:#FFFFFF !important; font-weight:900; font-size:19px; letter-spacing:-0.5px; }
-.bm-logo { font-size:22px; }
-.bm-title { font-weight:900; font-size:19px; letter-spacing:-0.5px; }
+.bm-header .bm-title { color:#FFFFFF !important; font-weight:900; font-size:20px; letter-spacing:-0.5px; }
+.bm-logo { font-size:24px; }
 .bm-round { background:#F5C451; color:#0B1B33 !important; font-size:12px;
-    font-weight:800; padding:3px 9px; border-radius:20px; margin-left:auto; }
+    font-weight:800; padding:4px 11px; border-radius:20px;
+    position:absolute; top:18px; right:18px; }
 
 .bm-subbar {
-    background:#FFFFFF; padding:11px 18px; border-radius:0 0 16px 16px;
-    font-size:12.5px; border:1px solid #E6E9EF; border-top:none;
-    margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;
+    background:#FFFFFF; padding:12px 18px; border-radius:0 0 18px 18px;
+    font-size:12.5px; border:1px solid #ECEFF3; border-top:none;
+    margin-bottom:20px; display:flex; justify-content:center; gap:18px; align-items:center;
 }
 .bm-subbar *, .bm-subbar { color:#5A6678 !important; font-weight:600; }
 .bm-deadline { color:#D64545 !important; font-weight:800; }
 
 /* ── 경기 카드 ── */
 .bm-card {
-    background:#FFFFFF; border:1px solid #E6E9EF; border-radius:14px;
-    padding:15px 17px 6px; margin-bottom:13px;
-    box-shadow:0 2px 10px rgba(11,27,51,0.05);
+    background:#FFFFFF; border:1px solid #ECEFF3; border-radius:16px;
+    padding:16px 18px 4px; margin-bottom:10px;
+    box-shadow:0 2px 12px rgba(11,27,51,0.04);
 }
 .bm-card-head {
     display:flex; justify-content:space-between; align-items:center;
-    font-size:11.5px; margin-bottom:10px;
-    border-bottom:1px solid #F0F2F5; padding-bottom:8px;
+    font-size:11px; margin-bottom:12px;
+    padding-bottom:0;
 }
-.bm-card-head *, .bm-card-head { color:#9AA4B2 !important; font-weight:700; }
-.bm-num { background:#0B1B33 !important; color:#FFFFFF !important;
-    padding:2px 8px; border-radius:5px; font-size:11px; margin-right:7px; font-weight:800; }
-.bm-team { font-size:16.5px; font-weight:800; text-align:center;
-    display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px;
-    padding:2px 0 8px; }
-.bm-team, .bm-team:not(.bm-num) { color:#0B1B33 !important; }
-.bm-badge-uo { background:#E3F4E8; color:#1E8449 !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
-.bm-badge-h  { background:#FCEEDB; color:#C9700A !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
-.bm-badge-ev { background:#E8EAF6; color:#3F51B5 !important; padding:2px 9px; border-radius:6px; font-size:11px; font-weight:800; margin-left:7px; }
+.bm-card-head *, .bm-card-head { color:#AEB6C2 !important; font-weight:700; letter-spacing:0.3px; }
+.bm-num { background:#13284A !important; color:#FFFFFF !important;
+    padding:3px 9px; border-radius:7px; font-size:12px; margin-right:9px; font-weight:800; }
+.bm-team { font-size:17px; font-weight:800; text-align:center;
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:7px;
+    padding:2px 0 12px; line-height:1.4; }
+.bm-team, .bm-team span:not(.bm-num):not([class*="badge"]) { color:#0B1B33 !important; }
+.bm-badge-uo { background:#EAF0F8; color:#1B3A6B !important; padding:3px 10px; border-radius:7px; font-size:11.5px; font-weight:800; }
+.bm-badge-h  { background:#FCEEDB; color:#C9700A !important; padding:3px 10px; border-radius:7px; font-size:11.5px; font-weight:800; }
+.bm-badge-ev { background:#EDEAF7; color:#5A4AB5 !important; padding:3px 10px; border-radius:7px; font-size:11.5px; font-weight:800; }
 
 /* ── ⭐ betman식 선택 버튼 (누르면 네이비로 칠해짐) ── */
-/* ── ⭐ 큼직한 네모 선택 버튼 ── */
-div[role="radiogroup"] { flex-direction:row !important; gap:10px !important; flex-wrap:wrap !important; padding-bottom:10px; }
+/* ── ⭐ 큼직한 네모 선택 버튼 (가운데 정렬) ── */
+div[role="radiogroup"] { flex-direction:row !important; gap:10px !important; flex-wrap:wrap !important;
+    justify-content:center !important; padding:4px 0 14px !important; }
 div[role="radiogroup"] > label {
     background:#F4F6F9 !important;
-    border:2px solid #E0E5EC !important;
+    border:2px solid #E6E9EF !important;
     border-radius:12px !important;
-    padding:16px 8px !important;
+    padding:15px 8px !important;
     margin:0 !important;
-    flex:1 1 70px !important; min-width:70px !important;
+    flex:0 1 92px !important; min-width:78px !important; max-width:120px;
     display:flex !important; align-items:center !important; justify-content:center !important;
     cursor:pointer; transition:all .15s ease;
 }
-/* 동그란 라디오 동그라미 숨기기 (첫 번째 자식 = 라디오 표시) */
+div[role="radiogroup"] > label:hover { border-color:#B9C2D0 !important; }
+/* 동그란 라디오 동그라미 숨기기 */
 div[role="radiogroup"] > label > div:first-child { display:none !important; }
 /* 글자 키우고 가운데 */
 div[role="radiogroup"] > label > div:last-child,
@@ -95,15 +97,12 @@ div[role="radiogroup"] > label p {
     color:#5A6678 !important; font-weight:800 !important; font-size:16px !important;
     text-align:center !important; width:100%;
 }
-/* 선택된 버튼: 네이비 채움 (aria-checked 사용 → :has 미지원 환경 대비) */
-div[role="radiogroup"] > label:has(input:checked),
-div[role="radiogroup"] > label[data-checked="true"] {
+/* 선택된 버튼: 네이비 채움 */
+div[role="radiogroup"] > label:has(input:checked) {
     background:#13284A !important; border-color:#13284A !important;
-    box-shadow:0 4px 14px rgba(19,40,74,0.28);
+    box-shadow:0 6px 16px rgba(19,40,74,0.22);
 }
-div[role="radiogroup"] > label:has(input:checked) p {
-    color:#FFFFFF !important;
-}
+div[role="radiogroup"] > label:has(input:checked) p { color:#FFFFFF !important; }
 
 /* ── 제출 버튼 ── */
 .stButton button[kind="primary"] {
@@ -115,8 +114,12 @@ div[role="radiogroup"] > label:has(input:checked) p {
 .stButton button[kind="primary"] p { color:#FFFFFF !important; }
 .stButton button[kind="primary"]:hover { filter:brightness(1.12); }
 
-/* 탭 스타일 살짝 정리 */
-button[data-baseweb="tab"] { font-weight:700 !important; }
+/* 탭 가운데 정렬 + 스타일 */
+div[data-baseweb="tab-list"] { justify-content:center !important; gap:6px; }
+button[data-baseweb="tab"] { font-weight:800 !important; font-size:15px !important; }
+
+/* 안내 박스 톤 정리 */
+[data-testid="stAlert"] { border-radius:12px !important; text-align:center; }
 
 /* ── 관리자 순위 카드 ── */
 .rank-card {
@@ -195,7 +198,7 @@ def save_pick(name, picks):
 # ------------------------------------------------------------
 # [3] 상단 헤더
 # ------------------------------------------------------------
-st.markdown('<div class="bm-header"><span class="bm-logo">🏆</span><span class="bm-title" style="color:#FFFFFF !important;">기계의장부 스포츠 토토</span><span class="bm-round">1회차</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="bm-header"><span class="bm-round">1회차</span><div style="display:flex;align-items:center;gap:9px;"><span class="bm-logo">🏆</span><span class="bm-title" style="color:#FFFFFF !important;">기계의장부 스포츠 토토</span></div></div>', unsafe_allow_html=True)
 st.markdown('<div class="bm-subbar"><span>⚽ 이벤트 승부식</span><span class="bm-deadline">마감 6/25(목) 09:50</span></div>', unsafe_allow_html=True)
 
 tab_main, tab_my, tab_admin = st.tabs(["📝 마킹하기", "🧾 마이페이지", "👑 관리자"])
@@ -207,8 +210,8 @@ with tab_main:
     if is_locked:
         st.error("🚨 제출이 마감되었습니다. (결과 발표 대기 중)")
     else:
-        st.info("⏳ 마감 전까지 무제한 수정 가능 (이름 동일하게 재제출)")
-        user_name = st.text_input("👤 참여자 이름", placeholder="이름을 입력하면 마킹 용지가 열립니다")
+        st.info("마감 전까지 무제한 수정 가능 · 이름 동일하게 재제출")
+        user_name = st.text_input("참여자 이름", placeholder="이름을 입력하면 마킹지가 열립니다")
 
         if user_name:
             picks = {}
@@ -220,7 +223,7 @@ with tab_main:
             ]
             for num, team, badge, opts, key in fixed:
                 st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
-                    <span>⚽ 월드컵 축구</span><span>경기 {num}</span></div>
+                    <span>⚽ 월드컵 축구</span><span>EVENT {num}</span></div>
                     <div class="bm-team"><span class="bm-num">{num}</span>{team}{badge}</div></div>""",
                     unsafe_allow_html=True)
                 picks[key] = st.radio(key, opts, horizontal=True, label_visibility="collapsed", key=key)
@@ -236,16 +239,15 @@ with tab_main:
             ]
             for num, (key, title, opts) in enumerate(events, start=3):
                 st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
-                    <span>🎯 이벤트 퀴즈</span><span>경기 {num}</span></div>
-                    <div class="bm-team"><span class="bm-num">{num}</span>{title}
-                    <span class='bm-badge-ev'>EVENT</span></div></div>""",
+                    <span>🎯 이벤트 퀴즈</span><span>EVENT {num}</span></div>
+                    <div class="bm-team"><span class="bm-num">{num}</span>{title}</div></div>""",
                     unsafe_allow_html=True)
                 picks[key] = st.radio(key, opts, horizontal=True,
                                       label_visibility="collapsed", key=key)
 
             # q10: 최종 스코어 맞히기 (몇 대 몇) → 화면번호 9
             st.markdown(f"""<div class="bm-card"><div class="bm-card-head">
-                <span>🏁 최종 스코어</span><span>경기 9</span></div>
+                <span>🏁 최종 스코어</span><span>EVENT 9</span></div>
                 <div class="bm-team"><span class="bm-num">9</span>{MATCH}
                 <span class='bm-badge-h'>SCORE</span></div></div>""",
                 unsafe_allow_html=True)
